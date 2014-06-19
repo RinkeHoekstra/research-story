@@ -1,0 +1,19 @@
+.preview:hover {
+	box-shadow:0 0 4px rgba(10,10,10,0.6);
+}
+
+.preview {
+    padding: 4px;
+    backround: white;
+}
+
+/*.preview div {
+    background: white;
+}*/
+
+.preview div img {
+    height: 100px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    float: left;
+}

@@ -1,0 +1,52 @@
+{% extends "bootstrap/base.html" %}
+{% block html_attribs %} lang="en"{% endblock %}
+
+{% block title %}This is an example page{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+  <!-- ... -->
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 2em;">
+            &nbsp;
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div id="story" class="well" style="height: 500px;"></div>
+        </div>
+        <div class="col-md-4" id="sources">
+            <div class="row">
+                <div class="col-md-12" id="previews">
+                    <div class="form-group">
+                        <label class="sr-only" for="url">Web address</label>
+                        <input type="text" class="form-control" id="url" placeholder="Enter web address">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link href="{{ url_for('.static', filename='css/jquery.urlive.css') }}" rel="stylesheet"></link>
+    <link href="{{ url_for('.static', filename='css/style.css') }}" rel="stylesheet"></link>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.urlive.js') }}"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/sockets.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/main.js') }}"></script>
+
+{% endblock %}
