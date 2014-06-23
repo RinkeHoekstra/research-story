@@ -20,7 +20,10 @@
     overflow: hidden;
 }
 
-
+.href {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 
 /* HTML5 JQuery Drag and Drop */
