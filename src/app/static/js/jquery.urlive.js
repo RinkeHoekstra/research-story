@@ -126,15 +126,17 @@
 												|| html.find(prop).html() || html.find(prop).attr('src');
 							}
 											
+                                            
 							set = {
 								image: get('og:image') || get('img'), 
 								title: get('og:title') || get('title'),
-								url: get('og:url') || url, 
+								// url: get('og:url') || url, 
+                                url: url, 
 								description: get('og:description'),	
 								type: get('og:type'),				
 								sitename: get('og:site_name')
 							}
-							
+                            
 							opts.callbacks.onSuccess(set);
 							
 							if(opts.render){
