@@ -1,6 +1,5 @@
 from flask import render_template, request, make_response, jsonify
 from rdflib import Graph
-
 from app import app, socketio
 import sockets
 
@@ -13,9 +12,9 @@ def retrieve():
     url = request.args.get('url',None)
     
     if url:
-        g = Graph()
-        g.load(url,format='rdfa')
-        turtle = g.serialize(format='turtle')
+        graph = Graph()
+        graph.load(url,format='rdfa')
+        turtle = graph.serialize(format='turtle')
         
         print turtle
         
