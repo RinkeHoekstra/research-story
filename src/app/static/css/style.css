@@ -4,16 +4,72 @@
 
 .preview {
     padding: 4px;
-    backround: white;
 }
 
-/*.preview div {
-    background: white;
-}*/
 
 .preview div img {
-    height: 100px;
+    max-height: 100px;
+}
+
+.clip {
     padding-right: 5px;
     padding-bottom: 5px;
     float: left;
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+}
+
+
+
+
+/* HTML5 JQuery Drag and Drop */
+
+.connected, .sortable, .exclude, .handles {
+	margin: auto;
+/*    padding: 0;*/
+	width: 100%;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.sortable.grid {
+	overflow: hidden;
+}
+.connected li, .sortable li, .exclude li, .handles li {
+	list-style: none;
+/*    margin: 5px;
+    padding: 5px;*/
+    min-height: 22px;
+}
+.handles span {
+	cursor: move;
+}
+li.disabled {
+	opacity: 0.5;
+}
+.sortable.grid li {
+	line-height: 80px;
+	float: left;
+	width: 80px;
+	height: 80px;
+	text-align: center;
+}
+li.highlight {
+	background: #FEE25F;
+}
+
+.connected {
+	float: left;
+}
+.connected.no2 {
+	float: right;
+}
+li.sortable-placeholder {
+	border: 1px dashed #CCC;
+	background: none;
+    margin-bottom: 5px;
 }
