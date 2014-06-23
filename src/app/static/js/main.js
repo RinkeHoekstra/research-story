@@ -2,6 +2,7 @@ $(document).ready(function(){
     var url = $("#url");
     var story = $("#story");
     
+    
     url.val("http://iricelino.org/rdfa/sample-annotated-page.html");
     url.val("http://www.nrc.nl");
     
@@ -14,7 +15,9 @@ $(document).ready(function(){
                 // },
                 onSuccess: function (data) {
                     console.log(data);
+                    $("#previews").empty();
                     $("#previews").append(make_preview(data));
+                    refresh_sorting();
                 },
                 // noData: function () {
                 //     $('.loading').hide();
@@ -23,36 +26,32 @@ $(document).ready(function(){
         });
     }).trigger('input');
     
-    story.droppable({
-        accept: ".preview",
-        drop: function(event, ui) {
-
-            var row = new_story_row(ui.draggable);
-            row.addClass('dropped');
-            $(this).append(row);
-            
-            var d = $(ui.draggable);
-            d.removeClass('ui-draggable');
-            console.log(d);
-            var href = $('#' + d.attr('id')).children().attr('href');
-
-            $.get('retrieve',{'url': href}, function(data){
-               console.log(data); 
-            });
-        },
-        over: function(event, ui) {
-            console.log("Over!");
-        }
-    }).sortable({
-        items: "div.dropped",
-        sort: function(){
-            $(this).removeClass('ui-state-default');
-        }
+    
+    refresh_sorting();
+    
+    
+    $('#add_row_button').on('click',function(e){
+       add_row(); 
     });
     
 });
 
-
+function refresh_sorting(){
+	$('.sortable').sortable();
+	$('.handles').sortable({
+		handle: '.handle'
+	});
+	$('.connected').sortable({
+		connectWith: '.connected'
+	});
+	$('.exclude').sortable({
+		items: ':not(.disabled)'
+	});
+    
+    $('.close').on('click',function(e){
+       $(this).parent().parent().remove(); 
+    });
+}
 
 
 function process_url(data){
@@ -60,6 +59,10 @@ function process_url(data){
     console.log(data.title);
 }
 
+function add_row(){
+    $('#story').append(make_preview({title:'New Row',description:'New Row'}));
+    refresh_sorting();
+}
 
 
 /*
@@ -67,79 +70,74 @@ function process_url(data){
 */
 
 function make_preview(data){
-    var new_preview = $('<div>');
+    var new_preview = $('<li>');
     new_preview.addClass('preview');
+    new_preview.addClass('panel panel-default')
     // new_preview.addClass('row');
     
-    new_preview.attr('id',url_to_id(data.url));
+    if(data.url && !data.id){
+        new_preview.attr('id',url_to_id(data.url));
+    } else if(data.id){
+        new_preview.attr('id',data.id);
+    } else {
+        new_preview.attr('id',uuid.v4());
+    }
     new_preview.attr('url',data.url);
+    new_preview.attr('draggable','true');
     
-    var img = $('<img>');
-    img.attr('src',data.image);
+    var heading =  $('<div class="panel-heading"><span class="handle">::</span> '+data.title+'<button type="button" class="close" aria-hidden="true">×</button></div>');
+    
+    var body = $('<div>');
+    body.addClass("panel-body");
+    
+    if(data.image){
+        var img = $('<img>');
+        img.attr('src',data.image);
 
+        var img_div = $('<div>')
+        img_div.addClass('clip');
+        img_div.append(img);  
+        
+        body.append(img_div);      
+    }
 
-    
-    var text_col = $('<div>');
-    text_col.append(img);
-    text_col.append($('<h4>'+data.title+'</h4>'));
-    text_col.append($('<p><a href="'+data.url+'">'+data.url+'</a></p>'));
-    
-    if(data.description){
-        text_col.append($('<p>'+data.description+'</p>'));
+    if(data.url){
+        body.append('<a href="'+data.url+'">'+data.url+'</a>');
+        $.get('/retrieve',{url:data.url},function(data){
+           console.log(data);
+           
+           var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
+           var rdf_area = $('<textarea>');
+           rdf_area.text(data);
+           rdf_area.css('display', 'block');
+           rdf_area.css('width', '100%')
+           rdf_area.hide();
+           
+           rdf_button.on('click',{target: rdf_area}, function(e){
+               e.data.target.toggle();
+           })
+           
+           body.append(rdf_button);
+           body.append(rdf_area);
+        });
+        
     }
     
-    text_col.append($('<br style="clear: both;"/>'));
+    if(data.description){
+        body.append($('<p>'+data.description+'</p>'));
+    }    
     
+    
+   
+    new_preview.append(heading);
+    new_preview.append(body);
     
 
-    new_preview.append(text_col);
-    new_preview.draggable({
-        revert: "invalid",
-        containment: "document",
-        helper: "clone",
-        cursor: "move"
-    });
     return new_preview
-}
-
-function new_story_row(content){
-    var row = $('<div>');
-    row.addClass('row');
-    row.css('padding','1ex');
-    
-    var col1 = $('<div>');
-    col1.addClass('col-md-1');
-    var col2 = $('<div>');
-    col2.addClass('col-md-11');
-    
-    var move = $('<span class="glyphicon glyphicon-move"></span>');
-    var remove = $('<span class="glyphicon glyphicon-remove"></span>');
-    remove.on('click',function(e){
-        $(this).parent().parent().remove();
-    })
-    
-    col1.append(move);
-    col1.append(remove);
-    
-    col2.append(content);
-    row.append(col1);
-    row.append(col2);
-    return(row);
 }
 
 function url_to_id(url){
     var id = url.replace(/[:/\.&\?=]/g,"_");
     
     return id;
-}
-
-
-function new_row(content){
-    var row = $('<div>');
-    row.addClass('row');
-    var col = $('<div>');
-    col.addClass('col-md-12');
-    col.append(content);
-    row.append(col);
-    return(row);
 }
