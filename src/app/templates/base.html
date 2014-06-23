@@ -18,15 +18,25 @@
     </div>
     <div class="row">
         <div class="col-md-8">
-            <div id="story" class="well" style="height: 500px;"></div>
+            <button type="button" id="add_row_button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Add row</button>
+            <hr/>
+            <ul id="story" class="connected list handles list-group">
+                <li draggable="true" class='panel panel-info'>
+                    <div class="panel-heading"><span class="handle">::</span> Storyline</div>
+                    <div class="panel-body">Drag interesting information to this column</div>
+                </li>
+            </ul>
         </div>
         <div class="col-md-4" id="sources">
             <div class="row">
-                <div class="col-md-12" id="previews">
+                <div class="col-md-12">
+                    <h4>Type the URL of the Web resource you want to include</h4>
                     <div class="form-group">
                         <label class="sr-only" for="url">Web address</label>
                         <input type="text" class="form-control" id="url" placeholder="Enter web address">
                     </div>
+                    <ul id="previews" class="connected list handles list-group">
+                    </ul>
                 </div>
             </div>
 
@@ -37,6 +47,7 @@
 
 {% block styles %}
     {{ super() }}
+    <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet"></link>
     <link href="{{ url_for('.static', filename='css/jquery.urlive.css') }}" rel="stylesheet"></link>
     <link href="{{ url_for('.static', filename='css/style.css') }}" rel="stylesheet"></link>
 {% endblock %}
@@ -44,6 +55,8 @@
 {% block scripts %}
     {{ super() }}
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.sortable.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/uuid.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/markdown.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.urlive.js') }}"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
