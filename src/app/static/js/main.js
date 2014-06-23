@@ -102,10 +102,8 @@ function make_preview(data){
     }
 
     if(data.url){
-        body.append('<a href="'+data.url+'">'+data.url+'</a>');
+        body.append('<div><a href="'+data.url+'">'+data.url+'</a></div>');
         $.get('/retrieve',{url:data.url},function(data){
-           console.log(data);
-           
            var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
            var rdf_area = $('<textarea>');
            rdf_area.text(data);
