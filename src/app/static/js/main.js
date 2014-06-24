@@ -20,9 +20,12 @@ $(document).ready(function(){
                     make_preview(data);
                     
                 },
-                // noData: function () {
-                //     $('.loading').hide();
-                // }
+                noData: function () {
+                    console.log("No data from URLive");
+                    $("#previews").empty();
+                    data = {url: url, target: "#previews"};
+                    make_preview(data);
+                }
             }
         });
     }).trigger('input');
@@ -71,8 +74,9 @@ function add_row(){
 
 function make_preview(data){
     console.log("Now in make_preview");
+    console.log(data.target);
     var target = $(data.target);
-    console.log(target);
+    // console.log(target);
     
     $.ajax({
         url: '/retrieve',
