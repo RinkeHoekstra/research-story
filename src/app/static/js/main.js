@@ -108,15 +108,32 @@ function make_preview(data){
            var rdf_area = $('<textarea>');
            rdf_area.text(data);
            rdf_area.css('display', 'block');
-           rdf_area.css('width', '100%')
-           rdf_area.hide();
+           rdf_area.css('width', '100%');
+           rdf_area.attr('id',uuid.v4());
            
-           rdf_button.on('click',{target: rdf_area}, function(e){
-               e.data.target.toggle();
-           })
            
            body.append(rdf_button);
            body.append(rdf_area);
+           
+           rdf_area.hide();
+                      
+           var rdf_codemirror = CodeMirror.fromTextArea(rdf_area.get(0), {
+               mode: "text/turtle",
+               lineNumbers: true,
+               readOnly: true,
+               autofocus: false
+            });
+           
+            var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
+           
+            rdf_codemirror_wrapper.css('clear','both');
+           rdf_codemirror_wrapper.hide();
+           
+           
+           rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
+               e.data.target.toggle();
+           })
+           
         });
         
     }
