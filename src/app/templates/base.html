@@ -49,6 +49,7 @@
     {{ super() }}
     <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet"></link>
     <link href="{{ url_for('.static', filename='css/jquery.urlive.css') }}" rel="stylesheet"></link>
+    <link href="{{ url_for('.static', filename='css/codemirror.css') }}" rel="stylesheet"></link>
     <link href="{{ url_for('.static', filename='css/style.css') }}" rel="stylesheet"></link>
 {% endblock %}
 
@@ -56,6 +57,8 @@
     {{ super() }}
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.sortable.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/codemirror.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/turtle.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/uuid.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/markdown.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.urlive.js') }}"></script>

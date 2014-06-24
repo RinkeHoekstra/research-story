@@ -31,7 +31,8 @@ def retrieve():
     
     if url:
         graph = Graph()
-        graph.parse(data=r.content,format=content_type)
+
+        graph.parse(data=r.content,format=content_type,media_type=r.headers['content-type'])
         
         graph.bind('prov',PROV)
         
@@ -40,8 +41,6 @@ def retrieve():
     
             content_type = r.headers['content-type']
             graph.parse(data=r.content,format=content_type)
-        
-        
         
         turtle = graph.serialize(format='turtle')
         
