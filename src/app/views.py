@@ -1,9 +1,11 @@
 from flask import render_template, request, make_response, jsonify
-from rdflib import Graph
+from rdflib import Graph, Namespace
 import requests
 
 from app import app, socketio
 import sockets
+
+PROV = Namespace('http://www.w3.org/ns/prov#')
 
 @app.route('/')
 def index():
@@ -20,14 +22,27 @@ def retrieve():
     
     content_type = r.headers['content-type']
     
+    print content_type
+    
     if ';' in content_type:
         (content_type,_) = content_type.split(';',1)
     
-    print content_type
+
     
     if url:
         graph = Graph()
         graph.parse(data=r.content,format=content_type)
+        
+        graph.bind('prov',PROV)
+        
+        for s,p,o in graph.triples( (None, PROV['wasGeneratedBy'], None) ):
+            r = requests.get(url, headers=headers)
+    
+            content_type = r.headers['content-type']
+            graph.parse(data=r.content,format=content_type)
+        
+        
+        
         turtle = graph.serialize(format='turtle')
         
         print turtle
