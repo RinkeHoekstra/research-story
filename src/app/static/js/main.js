@@ -16,8 +16,9 @@ $(document).ready(function(){
                 onSuccess: function (data) {
                     console.log(data);
                     $("#previews").empty();
-                    $("#previews").append(make_preview(data));
-                    refresh_sorting();
+                    data.target = "#previews";
+                    make_preview(data);
+                    
                 },
                 // noData: function () {
                 //     $('.loading').hide();
@@ -60,8 +61,7 @@ function process_url(data){
 }
 
 function add_row(){
-    $('#story').append(make_preview({title:'New Row',description:'New Row'}));
-    refresh_sorting();
+    make_preview({title:'New Row',description:'New Row',target: '#story'});
 }
 
 
@@ -70,11 +70,28 @@ function add_row(){
 */
 
 function make_preview(data){
+    console.log("Now in make_preview");
+    var target = $(data.target);
+    console.log(target);
+    
+    $.ajax({
+        url: '/retrieve',
+        data: data,
+        success: $.proxy(get_metadata,target)
+    });
+}
+
+
+function get_metadata(data){    
+    console.log("Now in get_metadata");
+    console.log(data);
+    var target = $(this);
+
     var new_preview = $('<li>');
     new_preview.addClass('preview');
     new_preview.addClass('panel panel-default')
     // new_preview.addClass('row');
-    
+
     if(data.url && !data.id){
         new_preview.attr('id',url_to_id(data.url));
     } else if(data.id){
@@ -84,12 +101,12 @@ function make_preview(data){
     }
     new_preview.attr('url',data.url);
     new_preview.attr('draggable','true');
-    
+
     var heading =  $('<div class="panel-heading"><span class="handle">::</span> '+data.title+'<button type="button" class="close" aria-hidden="true">×</button></div>');
-    
+
     var body = $('<div>');
     body.addClass("panel-body");
-    
+
     if(data.image){
         var img = $('<img>');
         img.attr('src',data.image);
@@ -97,58 +114,60 @@ function make_preview(data){
         var img_div = $('<div>')
         img_div.addClass('clip');
         img_div.append(img);  
-        
+
         body.append(img_div);      
     }
 
-    if(data.url){
-        body.append('<div class="href"><a href="'+data.url+'">'+data.url+'</a></div>');
-        $.get('/retrieve',{url:data.url},function(data){
-           var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
-           var rdf_area = $('<textarea>');
-           rdf_area.text(data);
-           rdf_area.css('display', 'block');
-           rdf_area.css('width', '100%');
-           rdf_area.attr('id',uuid.v4());
-           
-           
-           body.append(rdf_button);
-           body.append(rdf_area);
-           
-           rdf_area.hide();
-                      
-           var rdf_codemirror = CodeMirror.fromTextArea(rdf_area.get(0), {
-               mode: "text/turtle",
-               lineNumbers: true,
-               readOnly: true,
-               autofocus: false
-            });
-           
-            var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
-           
-            rdf_codemirror_wrapper.css('clear','both');
-           rdf_codemirror_wrapper.hide();
-           
-           
-           rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
-               e.data.target.toggle();
-           })
-           
-        });
-        
-    }
-    
     if(data.description){
         body.append($('<p>'+data.description+'</p>'));
     }    
     
-    
-   
+    if(data.license) {
+        body.append($('<p>License: <a href="'+data.license+'">'+data.license+'</a></p>'))
+    }
+
+    if(data.url){
+        body.append('<div class="href"><a href="'+data.url+'">'+data.url+'</a></div>');
+    }
+
+    var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
+    var rdf_area = $('<textarea>');
+    rdf_area.text(data.rdf);
+    rdf_area.css('display', 'block');
+    rdf_area.css('width', '100%');
+    rdf_area.attr('id',uuid.v4());
+
+
+    body.append(rdf_button);
+    body.append(rdf_area);
+
+    rdf_area.hide();
+
+    var rdf_codemirror = CodeMirror.fromTextArea(rdf_area.get(0), {
+       mode: "text/turtle",
+       lineNumbers: true,
+       readOnly: true,
+       autofocus: false
+    });
+
+    var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
+
+    rdf_codemirror_wrapper.css('clear','both');
+    rdf_codemirror_wrapper.hide();
+
+
+    rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
+       e.data.target.toggle();
+    })
+
+
+
     new_preview.append(heading);
     new_preview.append(body);
-    
 
-    return new_preview
+
+    target.append(new_preview);
+    refresh_sorting();
 }
 
 function url_to_id(url){
