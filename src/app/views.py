@@ -21,6 +21,7 @@ def retrieve():
     title = request.args.get('title',None)
     description = request.args.get('description',None)
     image = request.args.get('image',None)
+    license = None
     
     headers = {'Accept':'application/rdf+xml, application/xhtml+xml;q=0.3, text/xml;q=0.2,application/xml;q=0.2, text/html;q=0.3, text/plain;q=0.1, text/n3, text/rdf+n3;q=0.5, application/x-turtle;q=0.2, text/turtle;q=1'}
     
