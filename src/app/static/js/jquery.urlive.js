@@ -94,11 +94,13 @@
 					
 					if(regexp.test(text)){
 						url = regexp.exec(text)[0];	
+                        console.log(url);
 						testUrl(url);											
 					}
 				}
 				
 				function testUrl(url){
+                    console.log(url);
 					if(/\.(?:jpe?g|gif|png)/.test(url)){
 						var ti = url.substr(url.lastIndexOf('/') + 1);
 						draw({image:url, title:ti, url:url});
@@ -108,7 +110,9 @@
 				}
 						
 				function getData(url){
-					xajax({
+					console.log(url);
+                    
+                    xajax({
 						url: url,
 						type: 'GET',
 						beforeSend: opts.callbacks.onStart				
@@ -136,6 +140,9 @@
 								type: get('og:type'),				
 								sitename: get('og:site_name')
 							}
+                            
+                            console.log(get('og:image'));
+                            console.log(get('img'));
                             
 							opts.callbacks.onSuccess(set);
 							
