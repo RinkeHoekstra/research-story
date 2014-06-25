@@ -2,6 +2,7 @@ from flask import render_template, request, make_response, jsonify
 from rdflib import Graph, Namespace
 import requests
 import re
+import urllib
 
 from app import app, socketio
 import sockets
@@ -25,7 +26,7 @@ def retrieve():
     image = request.args.get('image',None)
     license = None
     date = None
-    creator = None
+    creator = set()
     parent = None
     publisher = None
     
@@ -129,13 +130,13 @@ def retrieve():
                 description = unicode(rdf_description)
             if rdf_image :
                 print rdf_image
-                image = unicode(rdf_image)
+                image = unicode(urllib.unquote(rdf_image))
             if rdf_license :
-                license = unicode(rdf_license)
+                license = unicode(urllib.unquote(rdf_license))
             if rdf_date :
                 date = unicode(rdf_date)
             if rdf_creator :
-                creator = unicode(rdf_creator)
+                creator.add(unicode(urllib.unquote(rdf_creator)))
             if rdf_publisher :
                 publisher = unicode(rdf_publisher)
             if rdf_parent :
@@ -151,7 +152,7 @@ def retrieve():
             'image': image,
             'license': license,
             'date': date,
-            'creator': creator,
+            'creator': list(creator),
             'publisher': publisher,
             'parent': parent
         }

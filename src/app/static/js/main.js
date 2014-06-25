@@ -148,10 +148,24 @@ function get_metadata(data){
             table.append($('<tr><th>License:</th><td><a href="'+data.license+'">'+data.license+'</a></td></tr>'));
         }
         if(data.date) {
-            table.append($('<tr><th>Date:</th><td><a href="'+data.license+'">'+data.date+'</a></td></tr>'));
+            table.append($('<tr><th>Date:</th><td>'+data.date+'</td></tr>'));
         }
-        if(data.creator) {
-            table.append($('<tr><th>Creator:</th><td><a href="'+data.creator+'">'+data.creator+'</a></td></tr>'));
+        if(data.creator.length > 0) {
+            console.log(data.creator)
+            var tr = $('<tr>');
+            var th = $('<th>Creator:</th>');
+            var td = $('<td>');
+            
+            
+            for (var c in data.creator) {
+                var div = $('<div class="creator">' + data.creator[c] +'</div>');
+                td.append(div);
+                console.log(td);
+            }
+            tr.append(th);
+            tr.append(td);
+            table.append(tr);
+            
         }
         if(data.publisher) {
             table.append($('<tr><th>Publisher:</th><td><a href="'+data.publisher+'">'+data.publisher+'</a></td></tr>'));
