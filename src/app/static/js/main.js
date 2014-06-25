@@ -5,6 +5,8 @@ $(document).ready(function(){
     
     url.val("http://iricelino.org/rdfa/sample-annotated-page.html");
     url.val("http://www.nrc.nl");
+    url.val("http://dx.doi.org/10.1007/978-3-642-25093-4_9");
+    url.val("http://dx.doi.org/10.1007/978-3-642-16438-5_23");
     
     url.on('input propertychange', function () {
          url.urlive({
@@ -132,13 +134,38 @@ function get_metadata(data){
         body.append($('<p>'+data.description+'</p>'));
     }    
     
-    if(data.license) {
-        body.append($('<p>License: <a href="'+data.license+'">'+data.license+'</a></p>'))
+    if(data.url){
+        body.append('<div class="href"><a href="'+data.url+'" target="_new">'+data.url+'</a></div>');
+    }
+        
+    if(data.license||data.url||data.date||data.creator||data.publisher||data.parent) {
+        var table = $('<table>',{
+            'class':'table table-striped',
+            'style':'clear:both;'
+        });
+        
+        if(data.license) {
+            table.append($('<tr><th>License:</th><td><a href="'+data.license+'">'+data.license+'</a></td></tr>'));
+        }
+        if(data.date) {
+            table.append($('<tr><th>Date:</th><td><a href="'+data.license+'">'+data.date+'</a></td></tr>'));
+        }
+        if(data.creator) {
+            table.append($('<tr><th>Creator:</th><td><a href="'+data.creator+'">'+data.creator+'</a></td></tr>'));
+        }
+        if(data.publisher) {
+            table.append($('<tr><th>Publisher:</th><td><a href="'+data.publisher+'">'+data.publisher+'</a></td></tr>'));
+        }
+        if(data.parent) {
+            table.append($('<tr><th>Part of:</th><td><a href="'+data.parent+'">'+data.parent+'</a></td></tr>'));
+        }
+        body.append(table);
     }
 
-    if(data.url){
-        body.append('<div class="href"><a href="'+data.url+'">'+data.url+'</a></div>');
-    }
+
+
+    
+    
 
     var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
     var rdf_area = $('<textarea>');
