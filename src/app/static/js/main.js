@@ -25,6 +25,12 @@ $(document).ready(function(){
                     $("#previews").empty();
                     data = {url: url, target: "#previews"};
                     make_preview(data);
+                },
+                imgError: function() {
+                    console.log("Image error");
+                },
+                onFail: function() {
+                    console.log("Fail");
                 }
             }
         });
