@@ -2,41 +2,58 @@ $(document).ready(function(){
     var url = $("#url");
     var story = $("#story");
     
+    $("#loading").hide();
     
     url.val("http://iricelino.org/rdfa/sample-annotated-page.html");
     url.val("http://www.nrc.nl");
     url.val("http://dx.doi.org/10.1007/978-3-642-25093-4_9");
     url.val("http://dx.doi.org/10.1007/978-3-642-16438-5_23");
     
-    url.on('input propertychange', function () {
-         url.urlive({
-             render: false,
-             callbacks: {
-                // onStart: function () {
-                //     $(".urlive-container").urlive('remove');
-                // },
-                onSuccess: function (data) {
-                    console.log(data);
-                    $("#previews").empty();
-                    data.target = "#previews";
-                    make_preview(data);
-                    
-                },
-                noData: function () {
-                    console.log("No data from URLive");
-                    $("#previews").empty();
-                    data = {url: url, target: "#previews"};
-                    make_preview(data);
-                },
-                imgError: function() {
-                    console.log("Image error");
-                },
-                onFail: function() {
-                    console.log("Fail");
-                }
-            }
-        });
-    }).trigger('input');
+    
+    $("#url-form").on('submit', function (e) {
+        e.preventDefault();
+        
+        $("#previews").empty();
+        $("#loading").show();
+        var url = $('#url').val();
+        console.log(url);
+        data = {url: url, target: "#previews"};
+        make_preview(data);
+        
+        
+        //  url.urlive({
+        //      render: false,
+        //      callbacks: {
+        //         // onStart: function () {
+        //         //     $(".urlive-container").urlive('remove');
+        //         // },
+        //         onSuccess: function (data) {
+        //             console.log(data);
+        //
+        //             data.target = "#previews";
+        //             make_preview(data);
+        //
+        //         },
+        //         noData: function () {
+        //             console.log("No data from URLive");
+        //             data = {url: url, target: "#previews"};
+        //             make_preview(data);
+        //         },
+        //         imgError: function() {
+        //             $("#loading").toggle();
+        //             console.log("Image error");
+        //         },
+        //         onFail: function() {
+        //             $("#loading").toggle();
+        //             console.log("Fail");
+        //         }
+        //     }
+        // });
+    });
+    
+    
+
+    // .trigger('input');
     
     
     refresh_sorting();
