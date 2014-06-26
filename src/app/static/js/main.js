@@ -65,6 +65,8 @@ $(document).ready(function(){
     
 });
 
+
+
 function refresh_sorting(){
 	$('.sortable').sortable();
 	$('.handles').sortable({
@@ -116,10 +118,7 @@ function get_metadata(data){
     console.log(data);
     var target = $(this);
 
-    var new_preview = $('<li>');
-    new_preview.addClass('preview');
-    new_preview.addClass('panel panel-default')
-    // new_preview.addClass('row');
+    var new_preview = $('<li>',{'class':'preview panel panel-default','url':data.url});
 
     if(data.url && !data.id){
         new_preview.attr('id',url_to_id(data.url));
@@ -128,20 +127,16 @@ function get_metadata(data){
     } else {
         new_preview.attr('id',uuid.v4());
     }
-    new_preview.attr('url',data.url);
-    new_preview.attr('draggable','true');
+
 
     var heading =  $('<div class="panel-heading"><span class="handle">::</span> '+data.title+'<button type="button" class="close" aria-hidden="true">×</button></div>');
 
-    var body = $('<div>');
-    body.addClass("panel-body");
+    var body = $('<div>',{'class':'panel-body'});
 
     if(data.image){
-        var img = $('<img>');
-        img.attr('src',data.image);
+        var img = $('<img>',{'src': data.image});
 
-        var img_div = $('<div>')
-        img_div.addClass('clip');
+        var img_div = $('<div>',{'class': 'clip float-left'});
         img_div.append(img);  
 
         body.append(img_div);      
@@ -215,7 +210,7 @@ function get_metadata(data){
        mode: "text/turtle",
        lineNumbers: true,
        readOnly: true,
-       autofocus: false
+       autofocus: true
     });
 
     var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
@@ -226,6 +221,7 @@ function get_metadata(data){
 
     rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
        e.data.target.toggle();
+       e.data.target.trigger($.Event('click'));
     })
 
 
@@ -233,8 +229,9 @@ function get_metadata(data){
     new_preview.append(heading);
     new_preview.append(body);
 
-
+    $("#loading").hide();
     target.append(new_preview);
+    
     refresh_sorting();
 }
 
