@@ -96,8 +96,9 @@ function get_metadata(data, target) {
     console.log("Now in get_metadata");
     console.log(data);
     
-
-    var new_preview = $('<li>',{'class':'preview panel panel-default','url':data.url});
+    var new_preview = $('<div>',{'class':'preview'});
+    var preview_panel = $('<li>',{'class':'panel panel-default','url':data.url});
+    
 
     if(data.url && !data.id){
         new_preview.attr('id',url_to_id(data.url));
@@ -123,8 +124,14 @@ function get_metadata(data, target) {
         }
     }
     
+    
+    
+    preview_panel.append(heading);
+    preview_panel.append(body);
+    new_preview.append(preview_panel);
+    
     if(data.url) {
-        var details = $('<div>',{'class':'panel panel-info','style':'clear:both;'});
+        var details = $('<div>',{'class':'panel panel-default','style':'clear:both;'});
         var details_heading = $('<div>',{'class':'panel-heading'});
         var details_body = $('<div>',{'class':'panel-body'});
         var details_toggle = $('<span>',{'class':'caret pull-right'});
@@ -225,11 +232,11 @@ function get_metadata(data, target) {
         })
 
 
-        body.append(details);
+        new_preview.append(details);
     
     }
-    new_preview.append(heading);
-    new_preview.append(body);
+    
+    
 
     $("#loading").hide();
     target.append(new_preview);
@@ -247,7 +254,7 @@ function new_heading(text){
         text = '';
     }
     
-    var textarea = $('<input>',{'class': 'textarea', 'type':'text','value': text,'width':'100%'});
+    var textarea = $('<input>',{'class': 'textarea form-control', 'type':'text','value': text,'width':'80%'});
     textarea.hide();
     
     var text_span = $('<div>', {'class': 'text_span'});
@@ -255,10 +262,11 @@ function new_heading(text){
     
     text_span.on('click',{'textarea':textarea},function(e){
         e.data.textarea.show();
+        e.data.textarea.focus();
         $(this).hide();
     })
     
-    textarea.on('change',{'text_span':text_span}, function(e){
+    textarea.on('blur',{'text_span':text_span}, function(e){
         $(this).hide();
         e.data.text_span.html(markdown.toHTML($(this).val()));
         e.data.text_span.show();
@@ -280,12 +288,35 @@ function new_heading(text){
 
 function new_body(text){
     var body = $('<div>',{'class':'panel-body'});
+    var columns = $('<div>',{'style':'column-count: 2; '})
 
-
+    if (!text){
+        text = '';
+    }
     
-    if(text){
-        body.append($('<p>'+text+'</p>'));
-    }  
+    var textarea = $('<textarea>',{'class': 'textarea form-control'});
+    textarea.text(text);
+    textarea.hide();
+    
+    var text_span = $('<div>', {'class': 'text_span'});
+    text_span.html(text);
+    
+    text_span.on('click',{'textarea':textarea},function(e){
+        e.data.textarea.show();
+        e.data.textarea.focus();
+        $(this).hide();
+    })
+    
+    textarea.on('blur',{'text_span':text_span}, function(e){
+        $(this).hide();
+        e.data.text_span.html(markdown.toHTML($(this).val()));
+        e.data.text_span.show();
+        
+    });
+    
+    body.append(textarea);
+    body.append(text_span);
+    
     
     return body;
 }

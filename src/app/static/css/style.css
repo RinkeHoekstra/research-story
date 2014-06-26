@@ -22,37 +22,32 @@ h1.header {
     margin-right: 5px;
     margin-bottom: 5px;
     max-width: 100px;
+    width: auto;
     max-height: 100px;
+    height: auto;
     overflow: hidden;
     clear: left;
     text-align: center;
 }
 
-.href {
+/*.href {
     overflow: hidden;
     text-overflow: ellipsis;
-}
+}*/
 
 div.handle, span.handle {
-    position: relative;
-    top: 0;
-    left: 0;
     width: 15px;
-    clear: none;
+    display: inline-block;
 }
 
 .textarea {
-    position: relative;
-    top: -1.3em;
-    left: 15px;
-    width: 90%;
+    width: 80%;
+    display: inline-block;
 }
 
 .text_span {
-    position: relative;
-    top: -1.3em;
-    left: 15px;
-    width: 90%;
+    width: 80%;
+    display: inline-block;
 }
 
 

@@ -189,9 +189,9 @@ def retrieve():
         
         for (rdf_title, rdf_description, rdf_image, rdf_license, rdf_date, rdf_creator, rdf_publisher, rdf_parent ) in result:
             if rdf_title:
-                title = unicode(rdf_title)
+                title = unicode(rdf_title).strip()
             if rdf_description:
-                description = unicode(rdf_description)
+                description = unicode(rdf_description).strip()
             if rdf_image :
                 print "Image: ", rdf_image
                 image.add(unicode(urllib.unquote(rdf_image)))
