@@ -19,18 +19,43 @@ h1.header {
 }
 
 .clip {
-    padding-right: 5px;
-    padding-bottom: 5px;
-    float: left;
-    width: 100px;
-    height: 100px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    max-width: 100px;
+    max-height: 100px;
     overflow: hidden;
+    clear: left;
+    text-align: center;
 }
 
 .href {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+div.handle, span.handle {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 15px;
+    clear: none;
+}
+
+.textarea {
+    position: relative;
+    top: -1.3em;
+    left: 15px;
+    width: 90%;
+}
+
+.text_span {
+    position: relative;
+    top: -1.3em;
+    left: 15px;
+    width: 90%;
+}
+
+
 
 /* Layout for attribute values */
 

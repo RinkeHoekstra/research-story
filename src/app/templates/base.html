@@ -21,9 +21,9 @@
             <button type="button" id="add_row_button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span> Add row</button>
             <hr/>
             <ul id="story" class="connected list handles list-group">
-                <li draggable="true" class='panel panel-info'>
-                    <div class="panel-heading"><span class="handle">::</span> Storyline</div>
-                    <div class="panel-body">Build your story by dragging content to this column</div>
+                <li draggable="true" class='panel panel-primary'>
+                    <div class="panel-heading"><span class="handle">::</span><div class="text_span">Storyline</div></div>
+                    <div class="panel-body"><div class="text">Build your story by dragging content to this column</div></div>
                 </li>
             </ul>
         </div>
@@ -72,7 +72,7 @@
     <script type="text/javascript" src="{{ url_for('.static', filename='js/turtle.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/uuid.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/markdown.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.urlive.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery.urlive.js') }}"></script> -->
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/sockets.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename='js/main.js') }}"></script>

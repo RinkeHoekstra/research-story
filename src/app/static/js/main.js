@@ -19,45 +19,11 @@ $(document).ready(function(){
         console.log(url);
         data = {url: url, target: "#previews"};
         make_preview(data);
-        
-        
-        //  url.urlive({
-        //      render: false,
-        //      callbacks: {
-        //         // onStart: function () {
-        //         //     $(".urlive-container").urlive('remove');
-        //         // },
-        //         onSuccess: function (data) {
-        //             console.log(data);
-        //
-        //             data.target = "#previews";
-        //             make_preview(data);
-        //
-        //         },
-        //         noData: function () {
-        //             console.log("No data from URLive");
-        //             data = {url: url, target: "#previews"};
-        //             make_preview(data);
-        //         },
-        //         imgError: function() {
-        //             $("#loading").toggle();
-        //             console.log("Image error");
-        //         },
-        //         onFail: function() {
-        //             $("#loading").toggle();
-        //             console.log("Fail");
-        //         }
-        //     }
-        // });
     });
     
     
 
-    // .trigger('input');
-    
-    
     refresh_sorting();
-    
     
     $('#add_row_button').on('click',function(e){
        add_row(); 
@@ -91,7 +57,8 @@ function process_url(data){
 }
 
 function add_row(){
-    make_preview({title:'New Row',description:'New Row',target: '#story'});
+    var target = $('#story');
+    get_metadata({title:'New Row',description:'New Row'},target);
 }
 
 
@@ -108,15 +75,27 @@ function make_preview(data){
     $.ajax({
         url: '/retrieve',
         data: data,
-        success: $.proxy(get_metadata,target)
+        success: $.proxy(get_metadata_wrapper,target),
+        error: function(){
+            console.log('Fail!');
+            $('#loading').hide();
+            var alert = $('<div class="alert alert-dismissable alert-danger"><button type="button" class="close" data-dismiss="alert">×</button><strong>Aw snap!</strong> Something went wrong. </div>')
+            $('#previews').append(alert);
+        }
     });
 }
 
 
-function get_metadata(data){    
+function get_metadata_wrapper(data){  
+    var target = $(this);
+    get_metadata(data, target);
+}
+
+function get_metadata(data, target) {
+      
     console.log("Now in get_metadata");
     console.log(data);
-    var target = $(this);
+    
 
     var new_preview = $('<li>',{'class':'preview panel panel-default','url':data.url});
 
@@ -129,46 +108,62 @@ function get_metadata(data){
     }
 
 
-    var heading =  $('<div class="panel-heading"><span class="handle">::</span> '+data.title+'<button type="button" class="close" aria-hidden="true">×</button></div>');
-
-    var body = $('<div>',{'class':'panel-body'});
-
-    if(data.image){
-        var img = $('<img>',{'src': data.image});
-
-        var img_div = $('<div>',{'class': 'clip float-left'});
-        img_div.append(img);  
-
-        body.append(img_div);      
-    }
-
-    if(data.description){
-        body.append($('<p>'+data.description+'</p>'));
-    }    
+    var heading = new_heading(data.title);
     
-    if(data.url){
-        body.append('<div class="href"><a href="'+data.url+'" target="_new">'+data.url+'</a></div>');
+    var body = new_body(data.description);
+
+    if(data.image && data.image.length>0){
+        for (var i in data.image) {
+            var img = $('<img>',{'src': data.image[i]});
+
+            var img_div = $('<div>',{'class': 'clip pull-left'});
+            img_div.append(img);  
+
+            body.append(img_div);   
+        }
     }
-        
-    if(data.license||data.url||data.date||data.creator||data.publisher||data.parent) {
+    
+    if(data.url) {
+        var details = $('<div>',{'class':'panel panel-info','style':'clear:both;'});
+        var details_heading = $('<div>',{'class':'panel-heading'});
+        var details_body = $('<div>',{'class':'panel-body'});
+        var details_toggle = $('<span>',{'class':'caret pull-right'});
+    
+        details_heading.text('Details');
+        details_heading.append(details_toggle);
+    
+        details_toggle.on('click',{target: details_body},function(e){
+            e.data.target.toggle();
+        })
+    
+        details.append(details_heading);
+        details.append(details_body);
+
+
         var table = $('<table>',{
             'class':'table table-striped',
             'style':'clear:both;'
         });
-        
+
+        table.append('<tr><th>URL:</th><td class="href"><a href="'+data.url+'" target="_new">'+data.url+'</a></td></tr>');
+
+
+
+
+    
         if(data.license) {
             table.append($('<tr><th>License:</th><td><a href="'+data.license+'">'+data.license+'</a></td></tr>'));
         }
         if(data.date) {
             table.append($('<tr><th>Date:</th><td>'+data.date+'</td></tr>'));
         }
-        if(data.creator.length > 0) {
+        if(data.creator && data.creator.length > 0) {
             console.log(data.creator)
             var tr = $('<tr>');
             var th = $('<th>Creator:</th>');
             var td = $('<td>');
-            
-            
+        
+        
             for (var c in data.creator) {
                 var div = $('<div class="creator">' + data.creator[c] +'</div>');
                 td.append(div);
@@ -177,7 +172,7 @@ function get_metadata(data){
             tr.append(th);
             tr.append(td);
             table.append(tr);
-            
+        
         }
         if(data.publisher) {
             table.append($('<tr><th>Publisher:</th><td><a href="'+data.publisher+'">'+data.publisher+'</a></td></tr>'));
@@ -185,47 +180,54 @@ function get_metadata(data){
         if(data.parent) {
             table.append($('<tr><th>Part of:</th><td><a href="'+data.parent+'">'+data.parent+'</a></td></tr>'));
         }
-        body.append(table);
+    
+        details_body.append(table);
+    
+
+
+
+    
+    
+
+        var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
+        var rdf_area = $('<textarea>');
+        rdf_area.text(data.rdf);
+        rdf_area.css('display', 'block');
+        rdf_area.css('width', '100%');
+        rdf_area.css('height', '250px');
+        rdf_area.attr('id',uuid.v4());
+
+
+        details_body.append(rdf_button);
+        details_body.append(rdf_area);
+    
+    
+
+        rdf_area.hide();
+
+        var rdf_codemirror = CodeMirror.fromTextArea(rdf_area.get(0), {
+           mode: "text/turtle",
+           lineNumbers: true,
+           readOnly: true,
+           autofocus: true
+        });
+
+        var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
+
+        rdf_codemirror_wrapper.css('clear','both');
+        rdf_codemirror_wrapper.hide();
+
+
+
+        rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
+           e.data.target.toggle();
+           setTimeout( rdf_codemirror.refresh, 1 )
+        })
+
+
+        body.append(details);
+    
     }
-
-
-
-    
-    
-
-    var rdf_button = $('<div class="btn btn-success btn-xs">RDF</div>');
-    var rdf_area = $('<textarea>');
-    rdf_area.text(data.rdf);
-    rdf_area.css('display', 'block');
-    rdf_area.css('width', '100%');
-    rdf_area.attr('id',uuid.v4());
-
-
-    body.append(rdf_button);
-    body.append(rdf_area);
-
-    rdf_area.hide();
-
-    var rdf_codemirror = CodeMirror.fromTextArea(rdf_area.get(0), {
-       mode: "text/turtle",
-       lineNumbers: true,
-       readOnly: true,
-       autofocus: true
-    });
-
-    var rdf_codemirror_wrapper = $(rdf_codemirror.getWrapperElement());
-
-    rdf_codemirror_wrapper.css('clear','both');
-    rdf_codemirror_wrapper.hide();
-
-
-    rdf_button.on('click',{target: rdf_codemirror_wrapper}, function(e){
-       e.data.target.toggle();
-       e.data.target.trigger($.Event('click'));
-    })
-
-
-
     new_preview.append(heading);
     new_preview.append(body);
 
@@ -233,6 +235,59 @@ function get_metadata(data){
     target.append(new_preview);
     
     refresh_sorting();
+}
+
+function new_heading(text){
+    var heading =  $('<div>',{'class':'panel-heading'});
+    var handle = $('<div>',{'class':'handle'});
+    handle.text('::');
+    heading.append(handle);
+    
+    if (!text){
+        text = '';
+    }
+    
+    var textarea = $('<input>',{'class': 'textarea', 'type':'text','value': text,'width':'100%'});
+    textarea.hide();
+    
+    var text_span = $('<div>', {'class': 'text_span'});
+    text_span.html(text);
+    
+    text_span.on('click',{'textarea':textarea},function(e){
+        e.data.textarea.show();
+        $(this).hide();
+    })
+    
+    textarea.on('change',{'text_span':text_span}, function(e){
+        $(this).hide();
+        e.data.text_span.html(markdown.toHTML($(this).val()));
+        e.data.text_span.show();
+        
+    });
+    
+
+    
+    heading.append(textarea);
+    heading.append(text_span);
+    
+    
+    var close_button = $('<button type="button" class="close" aria-hidden="true">×</button>');
+    heading.append(close_button);
+    
+    
+    return heading;
+}
+
+function new_body(text){
+    var body = $('<div>',{'class':'panel-body'});
+
+
+    
+    if(text){
+        body.append($('<p>'+text+'</p>'));
+    }  
+    
+    return body;
 }
 
 function url_to_id(url){
