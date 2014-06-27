@@ -175,7 +175,7 @@ def retrieve():
 
         
         for s,p,o in graph.triples( (None, PROV['wasGeneratedBy'], None) ):
-            r = requests.get(url, headers=rdf_headers)
+            r = requests.get(unicode(o), headers=rdf_headers)
     
             content_type = r.headers['content-type']
             graph.parse(data=r.content,format=content_type)
@@ -195,8 +195,7 @@ def retrieve():
             if rdf_image :
                 print "Image: ", rdf_image
                 image.add(unicode(urllib.unquote(rdf_image)))
-                
-                
+   
             if rdf_license :
                 license = unicode(urllib.unquote(rdf_license))
             if rdf_date :

@@ -111,18 +111,9 @@ function get_metadata(data, target) {
 
     var heading = new_heading(data.title);
     
-    var body = new_body(data.description);
+    var body = new_body(data.description, data.image);
 
-    if(data.image && data.image.length>0){
-        for (var i in data.image) {
-            var img = $('<img>',{'src': data.image[i]});
 
-            var img_div = $('<div>',{'class': 'clip pull-left'});
-            img_div.append(img);  
-
-            body.append(img_div);   
-        }
-    }
     
     
     
@@ -231,7 +222,7 @@ function get_metadata(data, target) {
            setTimeout( rdf_codemirror.refresh, 1 )
         })
 
-
+        details_body.hide();
         new_preview.append(details);
     
     }
@@ -254,7 +245,7 @@ function new_heading(text){
         text = '';
     }
     
-    var textarea = $('<input>',{'class': 'textarea form-control', 'type':'text','value': text,'width':'80%'});
+    var textarea = $('<input>',{'class': 'textarea form-control', 'type':'text','value': text});
     textarea.hide();
     
     var text_span = $('<div>', {'class': 'text_span'});
@@ -286,13 +277,32 @@ function new_heading(text){
     return heading;
 }
 
-function new_body(text){
+function new_body(text, image){
     var body = $('<div>',{'class':'panel-body'});
-    var columns = $('<div>',{'style':'column-count: 2; '})
+    var columns = $('<div>',{'class':'row'});
+
+    
+    var text_width = 'col-md-12'
+    
+    if(image && image.length>0){
+        var img_div = $('<div>',{'class': 'col-md-2'});
+        for (var i in image) {
+            var img = $('<img>',{'src': image[i],'class':'clip'});
+
+            
+            img_div.append(img);   
+        }
+        columns.append(img_div);  
+        text_width = 'col-md-10';
+    }
+
 
     if (!text){
         text = '';
     }
+    
+    
+    var text_div = $('<div>',{'class': text_width});
     
     var textarea = $('<textarea>',{'class': 'textarea form-control'});
     textarea.text(text);
@@ -314,10 +324,11 @@ function new_body(text){
         
     });
     
-    body.append(textarea);
-    body.append(text_span);
+    text_div.append(textarea);
+    text_div.append(text_span);
     
-    
+    columns.append(text_div);
+    body.append(columns);
     return body;
 }
 
