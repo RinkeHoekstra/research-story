@@ -289,11 +289,8 @@ function new_body(text, image){
       var imgcol = $('<div>',{'class':'col-md-3'});
       
       for (var i in image) {
-          var img = $('<img>',{'src': image[i]});
-
-          var img_div = $('<div>',{'class': 'clip pull-left'});
-          img_div.append(img);
-          imgcol.append(img_div);  
+          var img = $('<img>',{'src': image[i], 'class': 'clip'});
+          imgcol.append(img);  
       }
       
       row.append(imgcol);
@@ -308,8 +305,6 @@ function new_body(text, image){
         text = '';
     }
     
-    
-    var text_div = $('<div>',{'class': text_width});
     
     var textarea = $('<textarea>',{'class': 'textarea form-control'});
     textarea.text(text);
