@@ -96,8 +96,8 @@ function get_metadata(data, target) {
     console.log("Now in get_metadata");
     console.log(data);
     
-    var new_preview = $('<div>',{'class':'preview'});
-    var preview_panel = $('<li>',{'class':'panel panel-default','url':data.url});
+    var new_preview = $('<li>',{'class':'preview'});
+    var preview_panel = $('<div>',{'class':'panel panel-default','url':data.url});
     
 
     if(data.url && !data.id){
@@ -111,18 +111,9 @@ function get_metadata(data, target) {
 
     var heading = new_heading(data.title);
     
-    var body = new_body(data.description);
+    var body = new_body(data.description, data.image);
 
-    if(data.image && data.image.length>0){
-        for (var i in data.image) {
-            var img = $('<img>',{'src': data.image[i]});
 
-            var img_div = $('<div>',{'class': 'clip pull-left'});
-            img_div.append(img);  
-
-            body.append(img_div);   
-        }
-    }
     
     
     
@@ -232,8 +223,8 @@ function get_metadata(data, target) {
         })
 
 
-        new_preview.append(details);
-    
+        // new_preview.append(details);
+        preview_panel.append(details);
     }
     
     
@@ -254,10 +245,10 @@ function new_heading(text){
         text = '';
     }
     
-    var textarea = $('<input>',{'class': 'textarea form-control', 'type':'text','value': text,'width':'80%'});
+    var textarea = $('<input>',{'class': 'heading_textarea form-control', 'type':'text','value': text,'width':'80%'});
     textarea.hide();
     
-    var text_span = $('<div>', {'class': 'text_span'});
+    var text_span = $('<div>', {'class': 'heading_text_span'});
     text_span.html(text);
     
     text_span.on('click',{'textarea':textarea},function(e){
@@ -286,9 +277,28 @@ function new_heading(text){
     return heading;
 }
 
-function new_body(text){
+function new_body(text, image){
     var body = $('<div>',{'class':'panel-body'});
-    var columns = $('<div>',{'style':'column-count: 2; '})
+    var row = $('<div>',{'class': 'row'});
+    
+    if (image && image.length>0) {
+      var textcol = $('<div>',{'class':'col-md-9'});
+      var imgcol = $('<div>',{'class':'col-md-3'});
+      
+      for (var i in image) {
+          var img = $('<img>',{'src': image[i]});
+
+          var img_div = $('<div>',{'class': 'clip pull-left'});
+          img_div.append(img);
+          imgcol.append(img_div);  
+      }
+      
+      row.append(imgcol);
+      
+    } else {
+      var textcol = $('<div>',{'class':'col-md-12'});
+      // no imgcol!!!
+    }
 
     if (!text){
         text = '';
@@ -314,9 +324,12 @@ function new_body(text){
         
     });
     
-    body.append(textarea);
-    body.append(text_span);
+    textcol.append(textarea);
+    textcol.append(text_span);
+    row.append(textcol)
     
+    body.append(row);
+
     
     return body;
 }
