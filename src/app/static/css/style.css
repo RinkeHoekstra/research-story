@@ -6,35 +6,29 @@
     font-family: "Playball";
     font-size: 30px;
 }
-.preview:hover {
+.panel:hover {
 	box-shadow:0 0 4px rgba(10,10,10,0.6);
 }
+
 
 .preview {
     padding: 0px;
 }
 
 
-.preview div img {
-    max-height: 100px;
-}
 
 .clip {
-    margin-right: 5px;
-    margin-bottom: 5px;
-    max-width: 100px;
-    width: auto;
-    max-height: 100px;
-    height: auto;
+/*    padding-right: 5px;
+    padding-bottom: 5px;*/
+    max-width: 100%;
+    max-height: 100%;
     overflow: hidden;
-    clear: left;
-    text-align: center;
 }
 
-/*.href {
+.href {
     overflow: hidden;
     text-overflow: ellipsis;
-}*/
+}
 
 div.handle, span.handle {
     width: 15px;
@@ -65,6 +59,7 @@ div.handle, span.handle {
 
 
 
+
 /* Layout for attribute values */
 
 div.creator {
@@ -73,6 +68,18 @@ div.creator {
     text-overflow: ellipsis;
 }
 
+.textarea, .text_span, .handle {
+    display: inline-block;
+}
+
+.panel-heading > .textarea {
+    width: 80%;
+}
+
+.handle {
+    padding-right: 5px;
+    vertical-align: top;
+}
 
 /* HTML5 JQuery Drag and Drop */
 

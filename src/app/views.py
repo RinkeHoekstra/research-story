@@ -115,12 +115,13 @@ def retrieve():
         
         # Follow PROV generatedBy relations in the graph, to incorporate provenance information.
         for s,p,o in graph.triples( (None, PROV['wasGeneratedBy'], None) ):
-            r = requests.get(url, headers=rdf_headers)
+            r = requests.get(unicode(o), headers=rdf_headers)
     
             content_type = r.headers['content-type']
             graph.parse(data=r.content,format=content_type)
 
         response = prepare_json_response(url, rdf_host, final_rdf_url, html_host, final_html_url, graph)
+
         
         return jsonify(response)
     else :

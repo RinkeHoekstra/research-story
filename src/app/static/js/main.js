@@ -223,6 +223,7 @@ function get_metadata(data, target) {
         })
 
 
+        details_body.hide();
         // new_preview.append(details);
         preview_panel.append(details);
     }
@@ -246,6 +247,7 @@ function new_heading(text){
     }
     
     var textarea = $('<input>',{'class': 'heading_textarea form-control', 'type':'text','value': text,'width':'80%'});
+
     textarea.hide();
     
     var text_span = $('<div>', {'class': 'heading_text_span'});
@@ -279,6 +281,7 @@ function new_heading(text){
 
 function new_body(text, image){
     var body = $('<div>',{'class':'panel-body'});
+
     var row = $('<div>',{'class': 'row'});
     
     if (image && image.length>0) {
@@ -300,9 +303,13 @@ function new_body(text, image){
       // no imgcol!!!
     }
 
+
     if (!text){
         text = '';
     }
+    
+    
+    var text_div = $('<div>',{'class': text_width});
     
     var textarea = $('<textarea>',{'class': 'textarea form-control'});
     textarea.text(text);
@@ -324,13 +331,13 @@ function new_body(text, image){
         
     });
     
+
     textcol.append(textarea);
     textcol.append(text_span);
     row.append(textcol)
     
     body.append(row);
 
-    
     return body;
 }
 
