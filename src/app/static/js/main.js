@@ -96,8 +96,8 @@ function get_metadata(data, target) {
     console.log("Now in get_metadata");
     console.log(data);
     
-    var new_preview = $('<div>',{'class':'preview'});
-    var preview_panel = $('<li>',{'class':'panel panel-default','url':data.url});
+    var new_preview = $('<li>',{'class':'preview'});
+    var preview_panel = $('<div>',{'class':'panel panel-default','url':data.url});
     
 
     if(data.url && !data.id){
@@ -222,9 +222,10 @@ function get_metadata(data, target) {
            setTimeout( rdf_codemirror.refresh, 1 )
         })
 
+
         details_body.hide();
-        new_preview.append(details);
-    
+        // new_preview.append(details);
+        preview_panel.append(details);
     }
     
     
@@ -245,10 +246,11 @@ function new_heading(text){
         text = '';
     }
     
-    var textarea = $('<input>',{'class': 'textarea form-control', 'type':'text','value': text});
+    var textarea = $('<input>',{'class': 'heading_textarea form-control', 'type':'text','value': text,'width':'80%'});
+
     textarea.hide();
     
-    var text_span = $('<div>', {'class': 'text_span'});
+    var text_span = $('<div>', {'class': 'heading_text_span'});
     text_span.html(text);
     
     text_span.on('click',{'textarea':textarea},function(e){
@@ -279,21 +281,26 @@ function new_heading(text){
 
 function new_body(text, image){
     var body = $('<div>',{'class':'panel-body'});
-    var columns = $('<div>',{'class':'row'});
 
+    var row = $('<div>',{'class': 'row'});
     
-    var text_width = 'col-md-12'
-    
-    if(image && image.length>0){
-        var img_div = $('<div>',{'class': 'col-md-2'});
-        for (var i in image) {
-            var img = $('<img>',{'src': image[i],'class':'clip'});
+    if (image && image.length>0) {
+      var textcol = $('<div>',{'class':'col-md-9'});
+      var imgcol = $('<div>',{'class':'col-md-3'});
+      
+      for (var i in image) {
+          var img = $('<img>',{'src': image[i]});
 
-            
-            img_div.append(img);   
-        }
-        columns.append(img_div);  
-        text_width = 'col-md-10';
+          var img_div = $('<div>',{'class': 'clip pull-left'});
+          img_div.append(img);
+          imgcol.append(img_div);  
+      }
+      
+      row.append(imgcol);
+      
+    } else {
+      var textcol = $('<div>',{'class':'col-md-12'});
+      // no imgcol!!!
     }
 
 
@@ -324,11 +331,13 @@ function new_body(text, image){
         
     });
     
-    text_div.append(textarea);
-    text_div.append(text_span);
+
+    textcol.append(textarea);
+    textcol.append(text_span);
+    row.append(textcol)
     
-    columns.append(text_div);
-    body.append(columns);
+    body.append(row);
+
     return body;
 }
 

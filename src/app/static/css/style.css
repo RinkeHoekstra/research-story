@@ -1,17 +1,19 @@
 @import url(http://fonts.googleapis.com/css?family=Playball);
 
 
-h1.header {
+.header {
     
     font-family: "Playball";
+    font-size: 30px;
 }
 .panel:hover {
 	box-shadow:0 0 4px rgba(10,10,10,0.6);
 }
 
-/*.preview {
-    padding: 4px;
-}*/
+
+.preview {
+    padding: 0px;
+}
 
 
 
@@ -27,6 +29,36 @@ h1.header {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+div.handle, span.handle {
+    width: 15px;
+    display: inline-block;
+}
+
+.textarea {
+    width: 100%;
+    display: inline-block;
+    height: 100%;
+}
+
+.heading_textarea {
+    width: 80%;
+    display: inline-block;
+}
+
+
+.text_span {
+    width: 100%;
+    display: inline-block;
+}
+
+.heading_text_span {
+  width: 80%;
+  display: inline-block;
+}
+
+
+
 
 /* Layout for attribute values */
 
