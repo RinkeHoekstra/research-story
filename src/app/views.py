@@ -22,9 +22,135 @@ def index():
 @app.route('/retrieve',methods=['GET'])
 def retrieve():
     url = request.args.get('url',None)
-    # title = request.args.get('title',None)
-    # description = request.args.get('description',None)
-    # image = request.args.get('image',None)
+
+    
+    rdf_headers = {'Accept':'application/rdf+xml;q=0.5, application/xhtml+xml;q=0.3, text/xml;q=0.2,application/xml;q=0.2, text/html;q=0.3, text/plain;q=0.1, text/n3;q=0.5, text/rdf+n3;q=0.5, application/x-turtle;q=0.8, text/turtle;q=1'}
+    html_headers = {'Accept': 'application/xhtml+xml, text/xml, text/html'}
+    
+    
+    
+
+    
+    if url:
+        graph = Graph()
+        
+        graph.bind('owl',OWL)
+        graph.bind('prov',PROV)
+        
+        final_rdf_url = None
+        final_html_url = None
+        rdf_host = None
+        html_host = None
+        
+        # Perform an request to the url, expecting RDF content in response
+        rdf_r = requests.get(url, headers=rdf_headers, timeout=1)
+        print "RDF request performed"
+        
+        # If the status code is below 400, we've made a succesful request (no page not found or internal server errors)
+        if rdf_r.status_code < 400 :
+            ## Determine the final URL, in case we went through a couple of redirects
+            final_rdf_url = rdf_r.url
+            
+            # Find the RDF host 
+            try: 
+                rdf_host = re.match(r'(http://.*?)/.*',final_rdf_url).group(1)
+            except :
+                print "No match for RDF host"
+                rdf_host = final_rdf_url
+            
+            print "RDF Host", rdf_host
+            
+            ## Determine the Content Type of the response
+            content_type = rdf_r.headers['content-type']
+            if ';' in content_type:
+                (content_type,_) = content_type.split(';',1)
+        
+            ## Run rdflib parser on URL, and add to our graph
+            graph.parse(data=rdf_r.content,publicID=url, format=content_type)
+        
+        # Perform a request to the url, expecting HTML content in response
+        html_r = requests.get(url, headers=html_headers, timeout=1)
+        print "HTML request performed"
+        # If the status code is belof 400, we've made a succesful request (no page not found or internal server errors)
+        if html_r.status_code < 400 :
+            ## Determine the final URL, if we went through a couple of redirects
+            final_html_url = html_r.url
+            
+            # If we're dealing with Elsevier content, we need to follow the redirect URL included in the original response
+            if 'linkinghub.elsevier.com' in final_html_url:
+                print "Found ELSEVIER Linkinghub Redirect"
+                soup = BeautifulSoup(html_r.content)
+                redirect_input = soup.find(id="redirectURL")
+                redirect_url = redirect_input['value']
+                
+                html_r = requests.get(redirect_url, headers=html_headers, timeout=1)
+                
+                final_html_url = html_r.url
+                
+                
+            
+            # Find the HTML host
+            html_host = re.match(r'(http://.*?)/.*',final_html_url).group(1)
+            
+            print "HTML Host", html_host
+            
+            ## Determine the Content Type of the response
+            content_type = html_r.headers['content-type']
+            if ';' in content_type:
+                (content_type,_) = content_type.split(';',1)
+        
+            ## Run rdflib parser on URL
+            graph.parse(data=html_r.content,publicID=final_html_url, format=content_type)   
+            
+        
+        # If the final HTML url is different from the original URL, we assert a sameAs link between the two.
+        if final_html_url and url != final_html_url:
+            print "Adding sameAs"
+            
+            graph.add((URIRef(url),OWL['sameAs'],URIRef(final_html_url)))
+        
+
+        # Perform naive sameAs inferencing on the graph (two steps-deep)
+        graph = naive_owl_sameas(graph)
+        
+        # Follow PROV generatedBy relations in the graph, to incorporate provenance information.
+        for s,p,o in graph.triples( (None, PROV['wasGeneratedBy'], None) ):
+            r = requests.get(url, headers=rdf_headers)
+    
+            content_type = r.headers['content-type']
+            graph.parse(data=r.content,format=content_type)
+
+        response = prepare_json_response(url, rdf_host, final_rdf_url, html_host, final_html_url, graph)
+        
+        return jsonify(response)
+    else :
+        print "ERROR"
+        return "ERROR"
+        
+        
+def naive_owl_sameas(graph):
+    
+    for one,p,two in graph.triples((None,OWL['sameAs'],None)):
+        
+        ## Forward one step
+        for s,p,o in graph.triples((one, None, None)):
+            graph.add((two,p,o))
+        for s,p,o in graph.triples((two, None, None)):
+            graph.add((one,p,o))
+            
+        ## Backward one step
+        for s,p,o in graph.triples((None, None, one)):
+            graph.add((s,p,two))
+        for s,p,o in graph.triples((None, None, two)):
+            graph.add((s,p,one))
+            
+            
+    return graph
+
+
+def prepare_json_response(url, rdf_host, final_rdf_url, html_host, final_html_url, graph):
+    """Query the graph for relevant metadata around the URL"""
+    
     title = None
     description = None
     image = set()
@@ -34,12 +160,6 @@ def retrieve():
     parent = None
     publisher = None
     
-    rdf_headers = {'Accept':'application/rdf+xml;q=0.5, application/xhtml+xml;q=0.3, text/xml;q=0.2,application/xml;q=0.2, text/html;q=0.3, text/plain;q=0.1, text/n3;q=0.5, text/rdf+n3;q=0.5, application/x-turtle;q=0.8, text/turtle;q=1'}
-    html_headers = {'Accept': 'application/xhtml+xml, text/xml, text/html'}
-    
-    
-    
-
     query = """
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX og: <http://ogp.me/ns#>
@@ -84,176 +204,49 @@ def retrieve():
     
     """.format(URL = url)
     
-    print query 
+    metadata = {}
     
-    if url:
-        graph = Graph()
-        
-        graph.bind('owl',OWL)
-        graph.bind('prov',PROV)
-        
-        final_rdf_url = None
-        final_html_url = None
-        rdf_host = None
-        html_host = None
-        
-        rdf_r = requests.get(url, headers=rdf_headers)
-        
-        if rdf_r.status_code < 400 :
-            ## Determine the final URL, if we went through a couple of redirects
-            final_rdf_url = rdf_r.url
-            
-            try: 
-                rdf_host = re.match(r'(http://.*?)/.*',final_rdf_url).group(1)
-            except :
-                print "No match for RDF host"
-                rdf_host = final_rdf_url
-            
-            print "RDF Host", rdf_host
-            
-            ## Determine the Content Type of the response
-            content_type = rdf_r.headers['content-type']
-            if ';' in content_type:
-                (content_type,_) = content_type.split(';',1)
-        
-            ## Run rdflib parser on URL
-            graph.parse(data=rdf_r.content,publicID=url, format=content_type)
-        
-        
-        html_r = requests.get(url, headers=html_headers)
-        
-        
-        if html_r.status_code < 400 :
-            ## Determine the final URL, if we went through a couple of redirects
-            final_html_url = html_r.url
-            
-            if 'linkinghub.elsevier.com' in final_html_url:
-                print "Found ELSEVIER Linkinghub Redirect"
-                soup = BeautifulSoup(html_r.content)
-                redirect_input = soup.find(id="redirectURL")
-                redirect_url = redirect_input['value']
-                
-                html_r = requests.get(redirect_url, headers=html_headers)
-                
-                final_html_url = html_r.url
-                
-                
-            
-            
-            html_host = re.match(r'(http://.*?)/.*',final_html_url).group(1)
-            
-            print "HTML Host", html_host
-            
-            ## Determine the Content Type of the response
-            content_type = html_r.headers['content-type']
-            if ';' in content_type:
-                (content_type,_) = content_type.split(';',1)
-        
-            ## Run rdflib parser on URL
-            graph.parse(data=html_r.content,publicID=final_html_url, format=content_type)   
-            
+    result = graph.query(query)
     
-        if final_html_url and url != final_html_url:
-            print "Adding sameAs"
-            
-            graph.add((URIRef(url),OWL['sameAs'],URIRef(final_html_url)))
-        
-
-        
-        
-        
-        
-        graph = naive_owl_sameas(graph)
-        
-        
-
-        
-
-        print graph.serialize(format='turtle')
-        
-        
-
-        
-        for s,p,o in graph.triples( (None, PROV['wasGeneratedBy'], None) ):
-            r = requests.get(url, headers=rdf_headers)
+    turtle = graph.serialize(format='turtle')
     
-            content_type = r.headers['content-type']
-            graph.parse(data=r.content,format=content_type)
-            
-        metadata = {}
-        
-        result = graph.query(query)
-        
-        turtle = graph.serialize(format='turtle')
-        
-        
-        for (rdf_title, rdf_description, rdf_image, rdf_license, rdf_date, rdf_creator, rdf_publisher, rdf_parent ) in result:
-            if rdf_title:
-                title = unicode(rdf_title).strip()
-            if rdf_description:
-                description = unicode(rdf_description).strip()
-            if rdf_image :
-                print "Image: ", rdf_image
-                image.add(unicode(urllib.unquote(rdf_image)))
-                
-                
-            if rdf_license :
-                license = unicode(urllib.unquote(rdf_license))
-            if rdf_date :
-                date = unicode(rdf_date)
-            if rdf_creator :
-                creator.add(unicode(urllib.unquote(rdf_creator)))
-            if rdf_publisher :
-                publisher = unicode(rdf_publisher)
-            if rdf_parent :
-                parent = unicode(rdf_parent)
-        
-        response = {
-            'rdf': turtle,
-            'url': url,
-            'html_host': html_host,
-            'rdf_host': rdf_host,
-            'final_rdf_url': final_rdf_url,
-            'final_html_url': final_html_url,
-            'title': title,
-            'description': description,
-            'image': list(image),
-            'license': license,
-            'date': date,
-            'creator': list(creator),
-            'publisher': publisher,
-            'parent': parent
-        }
-        
-        
-        
-        return jsonify(response)
-    else :
-        print "ERROR"
-        return "ERROR"
-        
-        
-def naive_owl_sameas(graph):
     
-    for one,p,two in graph.triples((None,OWL['sameAs'],None)):
-        
-        ## Forward one step
-        for s,p,o in graph.triples((one, None, None)):
-            graph.add((two,p,o))
-        for s,p,o in graph.triples((two, None, None)):
-            graph.add((one,p,o))
-            
-        ## Backward one step
-        for s,p,o in graph.triples((None, None, one)):
-            graph.add((s,p,two))
-        for s,p,o in graph.triples((None, None, two)):
-            graph.add((s,p,one))
-            
-            
-    return graph
-
-
-
+    for (rdf_title, rdf_description, rdf_image, rdf_license, rdf_date, rdf_creator, rdf_publisher, rdf_parent ) in result:
+        if rdf_title:
+            title = unicode(rdf_title).strip()
+        if rdf_description:
+            description = unicode(rdf_description).strip()
+        if rdf_image :
+            image.add(unicode(urllib.unquote(rdf_image)))
+        if rdf_license :
+            license = unicode(urllib.unquote(rdf_license))
+        if rdf_date :
+            date = unicode(rdf_date)
+        if rdf_creator :
+            creator.add(unicode(urllib.unquote(rdf_creator)))
+        if rdf_publisher :
+            publisher = unicode(rdf_publisher)
+        if rdf_parent :
+            parent = unicode(rdf_parent)
+    
+    response = {
+        'rdf': turtle,
+        'url': url,
+        'html_host': html_host,
+        'rdf_host': rdf_host,
+        'final_rdf_url': final_rdf_url,
+        'final_html_url': final_html_url,
+        'title': title,
+        'description': description,
+        'image': list(image),
+        'license': license,
+        'date': date,
+        'creator': list(creator),
+        'publisher': publisher,
+        'parent': parent
+    }
+    
+    return response
 
 
 
